@@ -14,8 +14,7 @@ import asyncio
 import socket
 import logging
 
-from typing import TYPE_CHECKING, Optional, TypeVar, List, ClassVar, Tuple, Union
-from concurrent.futures import ThreadPoolExecutor
+from typing import TYPE_CHECKING, Optional, TypeVar, List, ClassVar, Tuple, Union, Any
 
 _logger = logging.getLogger("client")
 
@@ -35,9 +34,9 @@ def _init_args_():
     parser.add_argument(
         "-s",
         "--server",
-        default="192.168.0.3",
+        default="192.168.0.4",
         type=str,
-        description="Ip do servidor que o cliente ira tentar se connectar e ter a lista de clientes disponíveis.",
+        help="Ip do servidor que o cliente ira tentar se connectar e ter a lista de clientes disponíveis.",
     )
 
     # Configurar argumento para server port
@@ -46,15 +45,16 @@ def _init_args_():
         "--port",
         default=7472,
         type=int,
-        description="Porta onde o servidor está a alucar.",
+        help="Porta onde o servidor está a alucar.",
     )
 
     return parser.parse_args()
 
 
-async def ainput(prompt: str = ""):
+async def ainput(prompt: Any = ""):
     """Este method ira executar :meth:`input` em uma thread em separado do event loop asyncio,
     que ira fazer o input executar de forma assíncrona."""
+    from concurrent.futures import ThreadPoolExecutor
 
     with ThreadPoolExecutor(1, "AsyncInput") as executor:
         return await asyncio.get_event_loop().run_in_executor(executor, input, prompt)
@@ -80,7 +80,7 @@ class TCPClient(asyncio.Protocol):
         self.loop = loop or asyncio.get_event_loop()
 
         if not self.name:
-            self.name = input("Escreva um nome: ")[:40]
+            self.name = input("Escreva um nome: ")[:40] or "Unknow"
 
     async def _init_server_(self):
         server = await self.loop.create_server(lambda: self, *self._sock)
@@ -128,10 +128,11 @@ class TCPClient(asyncio.Protocol):
             except:
                 # tirar o cliente da cache
                 # se ouver algum error ao enviar data
-                _logger.info("Client removed")
+                _logger.info("Client `%s` foi removido devido a não esta disponível", transport.get_extra_info('peername'))
                 self.clients.remove(transport)
 
     async def connect_peers(self, clients: List[Tuple[str, int]]):
+        # Connectar a todos os clientes recebidos pelo servidor.
         for client in clients:
             try:
                 await self.loop.create_connection(lambda: self, *client)
@@ -154,7 +155,7 @@ class TCPClient(asyncio.Protocol):
         data = await r.read(2048)
 
         if not data:
-            _logger.warning("Servidor enviou None EOF")
+            _logger.warning("Servidor enviou EOF")
             await asyncio.sleep(5)
             return await self.recv_clients()
 
@@ -167,11 +168,14 @@ class TCPClient(asyncio.Protocol):
         # Porque não existe necessidade de continuar
         # com a conexão com o servidor.
         w.close()
+        _logger.debug("Conexão com o servidor `%s` foi fechada com sucesso.", SERVER)
 
     def connection_made(self, transport: asyncio.transports.BaseTransport) -> None:
         # Quando ouver um cliente a connectar-se a este cliente,
         # Ira adicionar a cache de clientes.
-        _logger.debug("Novo cliente %s", transport.get_extra_info("peername"))
+        _logger.debug(
+            "Conexão recebida do cliente `%s`", transport.get_extra_info("peername")
+        )
         self.clients.append(transport)
 
     def data_received(self, data: bytes) -> None:
@@ -209,5 +213,5 @@ if __name__ == "__main__":
 
     try:
         loop.run_forever()
-    except KeyboardInterrupt:
+    finally:
         loop.close()

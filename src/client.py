@@ -34,7 +34,7 @@ def _init_args_():
     parser.add_argument(
         "-s",
         "--server",
-        default="192.168.0.4",
+        default="127.0.0.1", #localhost
         type=str,
         help="Ip do servidor que o cliente ira tentar se connectar e ter a lista de clientes disponíveis.",
     )
@@ -128,7 +128,10 @@ class TCPClient(asyncio.Protocol):
             except:
                 # tirar o cliente da cache
                 # se ouver algum error ao enviar data
-                _logger.info("Client `%s` foi removido devido a não esta disponível", transport.get_extra_info('peername'))
+                _logger.info(
+                    "Client `%s` foi removido devido a não esta disponível",
+                    transport.get_extra_info("peername"),
+                )
                 self.clients.remove(transport)
 
     async def connect_peers(self, clients: List[Tuple[str, int]]):

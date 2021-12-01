@@ -14,7 +14,17 @@ import asyncio
 import socket
 import logging
 
-from typing import TYPE_CHECKING, Optional, TypeVar, List, ClassVar, Tuple, Union, Any
+from typing import (
+    TYPE_CHECKING,
+    Optional,
+    TypeVar,
+    List,
+    ClassVar,
+    Tuple,
+    Union,
+    Any,
+    Type,
+)
 
 _logger = logging.getLogger("client")
 
@@ -34,7 +44,7 @@ def _init_args_():
     parser.add_argument(
         "-s",
         "--server",
-        default="127.0.0.1", #localhost
+        default="127.0.0.1",  # localhost
         type=str,
         help="Ip do servidor que o cliente ira tentar se connectar e ter a lista de clientes disponíveis.",
     )
@@ -48,6 +58,7 @@ def _init_args_():
         help="Porta onde o servidor está a alucar.",
     )
 
+    # returnar agumentos formatados
     return parser.parse_args()
 
 
@@ -110,7 +121,7 @@ class TCPClient(asyncio.Protocol):
 
         loop.create_task(self.chat())
 
-    def broadcast(self, data: str):
+    async def broadcast(self, data: str):
         """Este method ira enviar data
         para todos os clientes que tirevem
         connectados com este cliente.
@@ -142,7 +153,7 @@ class TCPClient(asyncio.Protocol):
             except:
                 _logger.error("Error ao tentar connectaro com o peer `%s`", client)
 
-    async def recv_clients(self):
+    async def recv_clients(self) -> None:
         try:
             # Inciar uma conexão com o servidor
             _logger.debug("A tentar inicial uma conexão com o servidor (`%s`)", SERVER)
@@ -187,14 +198,14 @@ class TCPClient(asyncio.Protocol):
 
         print(data.decode())
 
-    async def chat(self):
+    async def chat(self) -> None:
         while 1:
             msg = await ainput(">>> ")
 
             # Verificar se existe realmente texto na messagem.
             if msg:
                 print(f"<Eu> :: {msg}")
-                self.broadcast(f"<{self.name}> :: {msg}")
+                await self.broadcast(f"<{self.name}> :: {msg}")
 
 
 if __name__ == "__main__":

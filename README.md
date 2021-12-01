@@ -23,18 +23,18 @@ Para rodar este chat, tera de executar o servidor e o client, utilize para o ser
 #### Rodar servidor
 Iniciar o servidor, que ira automaticamente iniciar um socket server em localhost na porta `7472`
 ```
-~$ # LINUX
-~$ python3 server.py
+~/chat-app-p2p/src$ # LINUX
+~/chat-app-p2p/src$ python3 server.py
 
-C:\> # WINDOWS
-C:\> py server.py
+C:\chat-app-p2p\src> # WINDOWS
+C:\chat-app-p2p\src> py server.py
 ```
 #### Rodar cliente
 Iniciar um cliente, que ira se connectar ao servidor `127.0.0.1:7472` by default, o ip e a porta do servidor que o cliente ira se conectar-se, pode ser alterado utilizando flag `--server <ip>` e para porta flag `--port <port>`.
 ```
-~$ # LINUX
-~$ python3 client.py
+~/chat-app-p2p/src$ # LINUX
+~/chat-app-p2p/src$ python3 client.py
 
-C:\> # WINDOWS
-C:\> py client.py
+C:\chat-app-p2p\src> # WINDOWS
+C:\chat-app-p2p\src> py client.py
 ```

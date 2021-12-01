@@ -2,7 +2,7 @@
 Este chat app ira permitir que clientes entrem em uma sala que lá poderam falar sem existir um servidor a receber todos os envios de dados dos clientes/peers, possibilitando assim o chat app funcione sem um servidor centralizado.
 
 ## Arquitectura
-Este p2p exemple utiliza biblioteca [asyncio](https://docs.python.org/3/library/asyncio-stream.html) e [socket](https://docs.python.org/3/library/socket.html) para utilização de socket protocol para os clientes poderem comunicar entre clientes com protocol TCP de uma forma assíncrona.
+Este p2p exemple utiliza biblioteca [asyncio](https://docs.python.org/3/library/asyncio-protocol.html) e [socket](https://docs.python.org/3/library/socket.html) para utilização de socket protocol para os clientes poderem comunicar entre clientes com protocol TCP de uma forma assíncrona.
 
 ### Cliente
 O Cliente irá inicar uma conexão com o servidor
